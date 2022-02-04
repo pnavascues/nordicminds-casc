@@ -1,0 +1,237 @@
+removeStrategy:
+  rbac: SYNC
+  items: NONE
+items:
+- healthMetrics:
+  - worstChildHealthMetric:
+      recursive: true
+  - averageChildHealthMetric: {}
+  - jobStatusHealthMetric:
+      unstable: true
+      countVirginJobs: false
+      failure: true
+      success: true
+      unbuilt: true
+  - projectEnabledHealthMetric: {}
+  kind: folder
+  displayName: cd-examples-library
+  name: cd-examples-library
+  description: CloudBees CD examples
+  items:
+  - publishersList:
+    - cloudBeesFlowTriggerRelease:
+        startingStage: Post Build
+        configuration: CloudBees Guru CD
+        releaseName: Triggered by Jenkins
+        projectName: Examples Library
+        parameters: '{"release":{"releaseName":"Triggered by Jenkins","stages":[{"stageName":"Post
+          Build","stageValue":""}],"pipelineName":"pipeline_Triggered by Jenkins","parameters":[]}}'
+    concurrentBuild: false
+    blockBuildWhenUpstreamBuilding: false
+    blockBuildWhenDownstreamBuilding: false
+    kind: freeStyle
+    displayName: job-triggers-cd-release
+    name: job-triggers-cd-release
+    description: ''
+    disabled: false
+    label: node
+    scm:
+      none: {}
+    scmCheckoutStrategy:
+      standard: {}
+  - concurrentBuild: true
+    kind: pipeline
+    displayName: pipeline-triggers-cd-release
+    allProperties:
+    - jiraProjectProperty: {}
+    resumeBlocked: false
+    name: pipeline-triggers-cd-release
+    description: ''
+    definition:
+      cpsFlowDefinition:
+        sandbox: true
+        script: "pipeline {\n    agent { label 'node' }\n    stages {\n        stage('Build')\
+          \ { \n            steps {\n                echo 'This is the build stage'\n\
+          \            }\n        }\n        stage('Test') { \n            steps {\n\
+          \                echo 'This is the test stage'\n            }\n        }\n\
+          \        stage('Handover to CloudBees CD') { \n            steps {\n   \
+          \             echo 'This is the Handover to CloudBees CD stage'\n      \
+          \          cloudBeesFlowTriggerRelease configuration: 'CloudBees Guru CD',\
+          \ parameters: '{\"release\":{\"releaseName\":\"Triggered by Jenkins\",\"\
+          stages\":[{\"stageName\":\"Post Build\",\"stageValue\":false}],\"pipelineName\"\
+          :\"pipeline_Triggered by Jenkins\",\"parameters\":[]}}', projectName: 'Examples\
+          \ Library', releaseName: 'Triggered by Jenkins', startingStage: 'Post Build'\n\
+          \            }\n        }\n    }\n}\n"
+    disabled: false
+  - concurrentBuild: true
+    kind: pipeline
+    displayName: pipeline-triggers-cd-release-on-preview
+    allProperties:
+    - jiraProjectProperty: {}
+    resumeBlocked: false
+    name: pipeline-triggers-cd-release-on-preview
+    description: ''
+    definition:
+      cpsFlowDefinition:
+        sandbox: true
+        script: "pipeline {\n    agent { label 'node' }\n    stages {\n        stage('Build')\
+          \ { \n            steps {\n                echo 'This is the build stage'\n\
+          \            }\n        }\n        stage('Test') { \n            steps {\n\
+          \                echo 'This is the test stage'\n            }\n        }\n\
+          \        stage('Handover to CloudBees CD') { \n            steps {\n   \
+          \             echo 'This is the Handover to CloudBees CD stage'\n      \
+          \          cloudBeesFlowTriggerRelease configuration: 'CloudBees Guru CD\
+          \ Preview', parameters: '{\"release\":{\"releaseName\":\"Triggered by Jenkins\"\
+          ,\"stages\":[{\"stageName\":\"Post Build\",\"stageValue\":false}],\"pipelineName\"\
+          :\"pipeline_Triggered by Jenkins\",\"parameters\":[]}}', projectName: 'Examples\
+          \ Library', releaseName: 'Triggered by Jenkins', startingStage: 'Post Build'\n\
+          \            }\n        }\n    }\n}\n"
+    disabled: false
+  properties:
+  - pipeline-model-docker:
+      registry:
+        dockerRegistryEndpoint: {}
+      dockerLabel: ''
+  - envVars: {}
+  - mavenConfigFolderOverrideProperty:
+      override: false
+  - itemRestrictions:
+      filter: false
+- healthMetrics:
+  - worstChildHealthMetric:
+      recursive: true
+  - averageChildHealthMetric: {}
+  - jobStatusHealthMetric:
+      unstable: true
+      countVirginJobs: false
+      failure: true
+      success: true
+      unbuilt: true
+  - projectEnabledHealthMetric: {}
+  kind: folder
+  displayName: soundredux
+  name: soundredux
+  items:
+  - orphanedItemStrategy:
+      defaultOrphanedItemStrategy:
+        daysToKeepStr: ''
+        pruneDeadBranches: true
+        numToKeepStr: '10'
+    sources:
+    - branchSource:
+        source:
+          github:
+            apiUri: https://api.github.com
+            traits:
+            - gitHubBranchDiscovery:
+                strategyId: 1
+            - gitHubPullRequestDiscovery:
+                strategyId: 1
+            - gitHubForkDiscovery:
+                trust:
+                  gitHubTrustPermissions: {}
+                strategyId: 1
+            - headWildcardFilter:
+                excludes: battleship
+                includes: '*'
+            repoOwner: cloudbees-guru
+            credentialsId: github-cloudbees-guru
+            id: e0b32169-39d7-4754-a9ff-165e249abffa
+            repository: soundredux
+            configuredByUrl: true
+            repositoryUrl: https://github.com/cloudbees-guru/soundredux
+        strategy:
+          allBranchesSame: {}
+    healthMetrics:
+    - worstChildHealthMetric:
+        recursive: true
+    - averageChildHealthMetric: {}
+    - jobStatusHealthMetric:
+        unstable: true
+        countVirginJobs: false
+        failure: true
+        success: true
+        unbuilt: true
+    - projectEnabledHealthMetric: {}
+    kind: workflowMultiBranchProject
+    displayName: SoundRedux
+    projectFactory:
+      customBranchProjectFactory:
+        marker: package.json
+        definition:
+          cpsFlowDefinition:
+            sandbox: true
+            script: "pipeline {\n    \n    agent { label 'node' }\n    stages {\n\
+              \        stage('Build') {\n            steps {\n                withNPM(npmrcConfig:\
+              \ 'npmrc') {\n                    container('node') {\n            \
+              \            sh 'npm i -g node-gyp'\n                        sh 'npm\
+              \ install'\n                    }\n                }\n            }\n\
+              \        }\n        stage ('SonarQube') {\n            steps {\n   \
+              \             container('sonar') {\n                    withSonarQubeEnv('SonarQube\
+              \ CloudBees Guru') {\n                        sh \"/opt/sonar-scanner/bin/sonar-scanner\
+              \ -Dsonar.projectKey=soundredux\"\n                    }\n         \
+              \       }\n            }\n        }\n        stage ('Publish to Nexus')\
+              \ {\n            steps {\n                container('node') {\n    \
+              \                sh 'npm publish --registry=https://nexus.cloudbees.guru:8081/repository/npm-local/'\n\
+              \                }\n            }\n        }\n    }\n}"
+    icon:
+      metadataActionFolderIcon: {}
+    description: soundredux
+    sourcesList:
+    - branchSource:
+        source:
+          github:
+            apiUri: https://api.github.com
+            traits:
+            - gitHubBranchDiscovery:
+                strategyId: 1
+            - gitHubPullRequestDiscovery:
+                strategyId: 1
+            - gitHubForkDiscovery:
+                trust:
+                  gitHubTrustPermissions: {}
+                strategyId: 1
+            - headWildcardFilter:
+                excludes: battleship
+                includes: '*'
+            repoOwner: cloudbees-guru
+            credentialsId: github-cloudbees-guru
+            id: e0b32169-39d7-4754-a9ff-165e249abffa
+            repository: soundredux
+            configuredByUrl: true
+            repositoryUrl: https://github.com/cloudbees-guru/soundredux
+        strategy:
+          allBranchesSame: {}
+    SCMSources:
+    - github:
+        apiUri: https://api.github.com
+        traits:
+        - gitHubBranchDiscovery:
+            strategyId: 1
+        - gitHubPullRequestDiscovery:
+            strategyId: 1
+        - gitHubForkDiscovery:
+            trust:
+              gitHubTrustPermissions: {}
+            strategyId: 1
+        - headWildcardFilter:
+            excludes: battleship
+            includes: '*'
+        repoOwner: cloudbees-guru
+        credentialsId: github-cloudbees-guru
+        id: e0b32169-39d7-4754-a9ff-165e249abffa
+        repository: soundredux
+        configuredByUrl: true
+        repositoryUrl: https://github.com/cloudbees-guru/soundredux
+    name: SoundRedux
+    items:
+    - soundredux/SoundRedux/master
+    properties:
+    - pipeline-model-docker:
+        registry:
+          dockerRegistryEndpoint: {}
+        dockerLabel: ''
+    - envVars: {}
+    - kubernetesFolderProperty: {}
+    - mavenConfigFolderOverrideProperty:
+        override: false
